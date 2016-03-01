@@ -1,0 +1,15 @@
+*** Surface -> ROV Comms ***
+command - param1: type, param2: type
+	setHeading - heading: number
+	setDepth - depth: number
+	setThruster - thruster: number, power: number (percentage, -100 to +100)
+	heartbeat - id: number (randomly generated, unique for every heartbeat.
+							This allows the surface to make sure the ROV is 
+							responding to the latest heartbeat request.)
+		
+*** ROV -> Surface Comms ***
+sensor id - type
+	id - number (echo the heartbeat ID sent by the surface)
+	depth - number (pressure sensor adjusted to actual depth in mm)
+	temp - number (adjusted to °C)
+	head - number
