@@ -1,0 +1,52 @@
+/* Generic Selectors */
+body {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 14px;
+	color: #333333;
+	background-color: #F9F9F9;
+}
+
+p {
+	width: 80%;
+}
+
+li {
+	list-style-type: none;
+	line-height: 150%;
+	list-style-image: disc;
+}
+
+h1 {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 18px;
+	font-weight: bold;
+	color: #000000;
+}
+
+h2 {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 16px;
+	font-weight: bold;
+	color: #000000;
+	border-bottom: 1px solid #C6EC8C;
+}
+
+/* IDs */
+
+#navigation {
+	position: absolute;
+	width: 210px;
+	height: 600px;
+	margin: 0;
+	margin-top: 50px;
+	border-right: 1px solid #C6EC8C;
+	font-weight: normal;
+}
+
+#content {
+	position: absolute;
+	padding: 0 0 20px 0; /*top right bottom left*/
+	margin-top: 50px;
+	margin-left: 235px;
+	left: 0px;
+}
