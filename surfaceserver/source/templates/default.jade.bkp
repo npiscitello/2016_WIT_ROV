@@ -5,9 +5,9 @@ html
     title World Wide Web
   body
     .header
-      h1.textStyle1 World Wide Web
+      h1.page-title World Wide Web
 
-    ul.textStyle2
+    ul.nav
       li: a(href='/') Home
       li: a(href='#news') News
       li: a(href='#about') About
