@@ -1,20 +1,12 @@
 doctype html
 html
   head
-    link(rel='stylesheet', href='/css/index.css')
-    title World Wide Web
+    link(rel='stylesheet', href='/css/default.css')
+    title WIT ROV
   body
-    .header
-      h1.textStyle1 World Wide Web
+    header
+      block header
+      h1.textStyle1 Welcome to the 2016 WIT ROV
 
-    ul.textStyle2
-      li: a(href='/') Home
-      li: a(href='#news') News
-      li: a(href='#about') About
-      li: a(href='#contact') Contact
-    
-    .main-content
+    content
       block content
-
-    .footer
-      p Copyright © 2020 Futurecorpz. Futurecorpz ® is a Registered Trademark of Futures (un)Ltd. in the Mars Community and other solar systems.
