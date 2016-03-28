@@ -4,8 +4,8 @@
   "description": "The surface server and UI for WIT's entry in the 2016 MATE ROV competition",
   "main": "server.js",
   "scripts": {
-    "build-css": "stylus source/stylesheets/index.styl -o static/css",
-    "watch-css": "stylus source/stylesheets/index.styl -o static/css -w",
+    "build-css": "stylus source/stylesheets/default.styl -o static/css",
+    "watch-css": "stylus source/stylesheets/default.styl -o static/css -w",
     "clean": "rm -rf static/css && mkdir -p static/css",
     "build": "npm run clean && npm run build-css",
     "watch": "npm run clean && npm run watch-css & nodemon server -e js,jade",

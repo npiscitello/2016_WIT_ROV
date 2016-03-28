@@ -1,17 +1,15 @@
 var express = require("express")
 var logger = require("morgan")
 var app = express()
-var template = require("jade").compileFile(__dirname + "/source/templates/homepage.jade")
 
-app.use(logger("dev"))
-app.use(express.static(__dirname + "/static"))
-
-app.get('/', function(req, res, next) {
-  try {
-    var html = template({ title: "Home" })
-    res.send(html)
-  } catch(e) {
-    next(e)
+app.get('/', function(req, res) {
+  // test for localhost login
+  var address = req.socket.remoteAddress
+  localhost_addr = /127.0.0.1/
+  if(localhost_addr.test(address)) {
+    res.send("Welcome! You're logged in from the local machine!")
+  } else {
+    res.send("INTRUDER! You're logged in from " + address + "!")
   }
 })
 
