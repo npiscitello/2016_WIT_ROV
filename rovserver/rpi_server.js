@@ -55,7 +55,7 @@ server.on('connection', function serverConnection(client) {
     buf += data.toString('utf-8');
     if (buf.indexOf('\n') > -1) {
       // There's at least one command ready. Process the buffer...
-      var cmds = buf.replace(/\n/gi, "\n|").split('|');
+      var cmds = buf.replace(/\n/gi, '\n|').split('|');
       // We use a for/in since there might be more than one
       for (var i in cmds) {
         if (cmds[i].indexOf('\n') > -1)
@@ -86,8 +86,15 @@ server.on('close', function serverClose() {
 
 
 // Received commands are passed through this function.
-function processCommand(cmd) {
-  console.log('Command: '+cmd);
+function processCommand(data) {
+  var cmd;
+  try {
+    cmd = JSON.parse(data.toString('utf-8'));
+  } catch (e) {
+    console.log('Invalid command.');
+    return false;
+  }
+  console.log('Command: '+JSON.stringify(cmd));
 }
 
 /* From here down are just notes/examples */
@@ -117,7 +124,7 @@ if (rpi) {
   // Assumes the sensor is on GPIO w1
   temp.sensors(function foundTempSensors(err, ids) {
     for (var i in ids) {
-      temp.temperature(i, getTemp);
+      temp.temperature(ids[i], getTemp);
     }
   });
   /* Temperature Sensor End */
