@@ -45,10 +45,28 @@ server.on('listening', function serverListening() {
 // When a new client connects, we see this event
 server.on('connection', function serverConnection(client) {
   console.log('Client connected: ' + client.remoteAddress +':'+ client.remotePort);
+  var buf = '';
+  var cmds;
 
   // Set up event listeners to start cooperating with the client
   client.on('data', function clientData(data) {
-    process.stdout.write(data.toString('utf-8'));
+    // Data chunks are split pretty randomly, so we store them until we see a newline
+    // and then process on that instead.
+    buf += data.toString('utf-8');
+    if (buf.indexOf('\n') > -1) {
+      // There's at least one command ready. Process the buffer...
+      var cmds = buf.replace(/\n/gi, "\n|").split('|');
+      // We use a for/in since there might be more than one
+      for (var i in cmds) {
+        if (cmds[i].indexOf('\n') > -1)
+          processCommand(cmds[i].split('\n')[0]);
+        else
+          buf = cmds[i];
+      }
+    }
+
+    // For debugging
+    process.stdout.write('Debug:   '+data.toString('utf-8'));
   });
 
   client.on('close', function clientClose() {
@@ -65,6 +83,12 @@ server.on('error', function serverError(err) {
 server.on('close', function serverClose() {
   console.log('Goodbye!');
 });
+
+
+// Received commands are passed through this function.
+function processCommand(cmd) {
+  console.log('Command: '+cmd);
+}
 
 /* From here down are just notes/examples */
 
@@ -84,7 +108,7 @@ if (rpi) {
 
 
   /* Temperature Sensor */
-  var getTemp = function getTemp(err, value) {
+  var getTemp = function(err, value) {
     console.log('Current temperature is: ', value);
     if (err)
       console.log('Error:'+err);
