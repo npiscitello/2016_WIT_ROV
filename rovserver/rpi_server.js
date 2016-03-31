@@ -59,7 +59,8 @@ server.on('connection', function serverConnection(client) {
       // We use a for/in since there might be more than one
       for (var i in cmds) {
         if (cmds[i].indexOf('\n') > -1)
-          processCommand(cmds[i].split('\n')[0]);
+          // For each command, process and then respond to the client with the result
+          client.write(JSON.stringify(processCommand(cmds[i].split('\n')[0]))+'\n');
         else
           buf = cmds[i];
       }
@@ -88,13 +89,20 @@ server.on('close', function serverClose() {
 // Received commands are passed through this function.
 function processCommand(data) {
   var cmd;
+  var response = {
+    success: false,
+    data: false
+  };
+
   try {
     cmd = JSON.parse(data.toString('utf-8'));
   } catch (e) {
     console.log('Invalid command.');
-    return false;
+    return response;
   }
   console.log('Command: '+JSON.stringify(cmd));
+  response.success = true;
+  return response;
 }
 
 /* From here down are just notes/examples */
