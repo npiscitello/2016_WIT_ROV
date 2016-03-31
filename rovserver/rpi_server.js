@@ -23,10 +23,7 @@ console.log('WIT ROV 2016 - Server Unit');
 // This is so we can disable the sensor features on systems that
 // aren't the raspberry pi
 var arch = execSync('uname -m').toString('utf-8').split('\n')[0];
-var rpi = false;
-
-if (arch.indexOf('arm') > -1)
-  rpi = true;
+var rpi = (arch.indexOf('arm') > -1);
 
 console.log('System Architecture: '+arch);
 console.log('Enable RPI features: '+rpi+'\n');
@@ -65,9 +62,6 @@ server.on('connection', function serverConnection(client) {
           buf = cmds[i];
       }
     }
-
-    // For debugging
-    process.stdout.write('Debug:   '+data.toString('utf-8'));
   });
 
   client.on('close', function clientClose() {
@@ -89,18 +83,29 @@ server.on('close', function serverClose() {
 // Received commands are passed through this function.
 function processCommand(data) {
   var cmd;
+
+  // This is the default response for a failed action
   var response = {
     success: false,
+    err: false,
     data: false
   };
 
   try {
+    // Parse the command into a JSON object
     cmd = JSON.parse(data.toString('utf-8'));
   } catch (e) {
-    console.log('Invalid command.');
-    return response;
+    // This is where we catch any bad (non-json) input
+    response.err = 'invalid_command'; // Send back an error message
+    response.data = data.toString('utf-8'); // Send back the bad command so we can look at it
+    console.log('Invalid command: '+response.data);
+    return response; // Respond to the client
   }
+
+  // Command was successfully parsed
   console.log('Command: '+JSON.stringify(cmd));
+
+  // At this point we need to check the action. For now, return success.
   response.success = true;
   return response;
 }
