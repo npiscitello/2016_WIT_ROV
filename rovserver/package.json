@@ -1,0 +1,21 @@
+{
+  "name": "witrov2016-server",
+  "version": "0.0.1",
+  "description": "Runs on the ROV",
+  "main": "rpi_server.js",
+  "scripts": {
+    "start": "node rpi_server.js"
+  },
+  "dependencies": {
+    "ds18b20": "0.1.0",
+    "node-pid-controller": "0.1.2",
+    "mpu9150": "0.0.1"
+  },
+  "engines": {
+    "node": "4.0.0"
+  },
+  "author": "Nate Dube",
+  "contributors": [
+  ],
+  "license": "GPLv3"
+}
