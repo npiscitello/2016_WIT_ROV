@@ -1,6 +1,6 @@
 // Native Dependencies
-var execSync = require('child_process').execSync; // Execute external commands
 var net = require('net');                         // Socket connections
+var os = require('os');                           // System stats
 // NPM Dependencies
 var mpu9150 = require('mpu9150');                 // Accelerometer/Gyro
 var temp = require('ds18b20');                    // Temperature sensor
@@ -22,7 +22,7 @@ console.log('WIT ROV 2016 - Server Unit');
 // We need to determine the processor architecture
 // This is so we can disable the sensor features on systems that
 // aren't the raspberry pi
-var arch = execSync('uname -m').toString('utf-8').split('\n')[0];
+var arch = os.arch();
 var rpi = (arch.indexOf('arm') > -1);
 
 console.log('System Architecture: '+arch);
@@ -96,19 +96,57 @@ function processCommand(data) {
     cmd = JSON.parse(data.toString('utf-8'));
   } catch (e) {
     // This is where we catch any bad (non-json) input
-    response.err = 'invalid_command'; // Send back an error message
+    response.err = 'not_json'; // Send back an error message
     response.data = data.toString('utf-8'); // Send back the bad command so we can look at it
-    console.log('Invalid command: '+response.data);
+    console.log('Invalid JSON: '+response.data);
     return response; // Respond to the client
   }
 
-  // Command was successfully parsed
-  console.log('Command: '+JSON.stringify(cmd));
+  // Let's make sure it specifies some action
+  if (!cmd.hasOwnProperty('action')) {
+    response.err = 'no_action';
+    response.data = cmd;
+    console.log('Invalid action: '+JSON.stringify(cmd));
+    return response;
+  }
 
-  // At this point we need to check the action. For now, return success.
-  response.success = true;
+  /*
+   * This is our primary switch case for event processing
+   * We can pretty much get away with hooking up most
+   * commands right in here.
+   */
+  switch (cmd.action) {
+    case 'get_time':
+      // Return the rov time for some reason
+      response.success = true;
+      response.data = {time: Date.now()};
+      break;
+    case 'get_mem_usage':
+      // Get memory usage stats
+      response.success = true;
+      response.data = {free: os.freemem(), total: os.totalmem()};
+      break;
+    case 'get_cpu_usage':
+      // Get the processor load average
+      response.success = true;
+      response.data = {cpuload: os.loadavg()};
+      break;
+    case 'ping':
+      // Do nothing, successfully
+      response.success = true;
+      break;
+    default:
+      response.err = 'not_implemented';
+      response.data = cmd;
+      console.log('Command not implemented: '+cmd.action);
+      break;
+  }
+
+  console.log('Command was: '+JSON.stringify(cmd));
   return response;
 }
+
+
 
 /* From here down are just notes/examples */
 
