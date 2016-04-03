@@ -21,42 +21,41 @@ app.get('/', function(req, res) {
   }
 })
 
-// listen to port 3000
-app.listen(PORT, function() {
-  console.log("Listening on port " + PORT)
-  console.log("__dirname root: " + __dirname)
-})
-
 //*** SOCKET STUFF ***//
 // imports
-page_socket = new require("net").Server()
+page_socket = require("express-ws")(app)
 rov_socket = new require("net").Socket()
 
-// set options and open a socket
-page_socket.listen(8000, "10.0.2.15", function() {
-  console.log("socket opened at " + page_socket.address().address + ":" + page_socket.address().address)
-})
-
 // set options and connect to the rov
+rov_socket.readable = true
+rov_socket.writable = true
 rov_socket_options = {"address":"127.0.0.1", "port":"8100"}
 rov_socket.connect(rov_socket_options) 
 
-// manage connections to the page socket
-page_socket.on("connection", function(page) {
-  console.log("page connected: " + page.remoteAddress + ":" + page.remotePort)
- 
-  // handle data incoming from the page 
-  page.on("data", function(data) {
-    console.log(data)
-  })
-})
-
 // listen for a successful connection to the rov
 rov_socket.on("connect", function() {
-  console.log("connect to the rov at " + rov_socket.remoteAddress + ":" + rov_socket.remotePort)
+  console.log("connected to the rov at " + rov_socket.remoteAddress + ":" + rov_socket.remotePort)
+  rov_socket.write("yes!")
 })
 
 // listen for data from the rov
 rov_socket.on("data", function(data) {
   console.log("received from rov: " + data)
+})
+
+// handle messages from the page
+app.ws('/', function(ws, req) {
+  ws.on('message', function(msg) {
+    console.log("received from page: " + msg)
+    rov_socket.write(msg)
+  })
+})
+
+
+
+//*** START SERVER ***//
+// listen to port 3000
+app.listen(PORT, function() {
+  console.log("Listening on port " + PORT)
+  console.log("__dirname root: " + __dirname)
 })
