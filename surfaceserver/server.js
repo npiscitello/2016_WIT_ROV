@@ -5,7 +5,7 @@ var logger = require("morgan")
 var app = express()
 
 // constants
-const PORT = 3000
+const HTTP_PORT = 3000
 
 // set path for static files
 app.use(express.static(__dirname + "/static"))
@@ -35,7 +35,6 @@ rov_socket.connect(rov_socket_options)
 // listen for a successful connection to the rov
 rov_socket.on("connect", function() {
   console.log("connected to the rov at " + rov_socket.remoteAddress + ":" + rov_socket.remotePort)
-  rov_socket.write("yes!")
 })
 
 // listen for data from the rov
@@ -45,9 +44,10 @@ rov_socket.on("data", function(data) {
 
 // handle messages from the page
 app.ws('/', function(ws, req) {
+  console.log("page connected")
   ws.on('message', function(msg) {
     console.log("received from page: " + msg)
-    rov_socket.write(msg)
+    rov_socket.write(msg + "\r\n")
   })
 })
 
@@ -55,7 +55,7 @@ app.ws('/', function(ws, req) {
 
 //*** START SERVER ***//
 // listen to port 3000
-app.listen(PORT, function() {
-  console.log("Listening on port " + PORT)
+app.listen(HTTP_PORT, function() {
+  console.log("Listening on port " + HTTP_PORT)
   console.log("__dirname root: " + __dirname)
 })
