@@ -1,6 +1,11 @@
+// imports
 var express = require("express")
 var logger = require("morgan")
 var app = express()
+var ws = require("express-ws")(app)
+
+// constants
+const PORT = 3000
 
 // set path for static files
 app.use(express.static(__dirname + "/static"))
@@ -16,7 +21,8 @@ app.get('/', function(req, res) {
   }
 })
 
-// listen to port 3000 (or another port?)
-app.listen(process.env.PORT || 3000, function() {
-  console.log("Listening on http://localhost:" + (process.env.PORT || 3000))
+// listen to port 3000
+app.listen(PORT, function() {
+  console.log("Listening on port " + PORT)
+  console.log("__dirname root: " + __dirname)
 })

@@ -1,4 +1,15 @@
 extends default
 
+block docheader
+  script(src = "/app/remote.js")
+
 block content
   p1.textStyle2 INTRUDER! You're logging in from #{address}!
+  br
+  br
+  p1.inputStyle Input valid JSON: 
+  input.textBoxStyle(type="text", placeholder='{"Input":"JSON"}', id="json_input")
+  button.buttonStyle(id="json_button") Submit
+  br
+  p1.inputStyle Server response: 
+  input.textBoxStyle(type="text", id="json_output")

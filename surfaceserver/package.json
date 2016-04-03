@@ -9,12 +9,13 @@
     "clean": "rm -rf static/css && mkdir -p static/css",
     "build": "npm run clean && npm run build-css",
     "watch": "npm run clean && npm run watch-css & nodemon server -e js,jade",
-    "start": "node server"
+    "start": "npm run build && node server"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.13.4",
+    "express-ws": "^1.0.0",
     "jade": "^1.11.0",
     "morgan": "^1.7.0",
     "nodemon": "^1.9.1",
