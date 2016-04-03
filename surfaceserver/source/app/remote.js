@@ -1,4 +1,4 @@
-var socket = new WebSocket("ws://127.0.0.1:3000")
+var socket = new WebSocket("ws://127.0.0.1:8000")
 
 // wait for the window to load before trying to do anything...
 window.onload = function() {
