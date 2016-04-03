@@ -9,7 +9,7 @@
     "clean": "rm -rf static/css && mkdir -p static/css",
     "build": "npm run clean && npm run build-css",
     "watch": "npm run clean && npm run watch-css & nodemon server -e js,jade",
-    "start": "npm run build && node server"
+    "start": "cp -r source/app static/app && npm run build && node server"
   },
   "author": "",
   "license": "ISC",

@@ -26,3 +26,11 @@ app.listen(PORT, function() {
   console.log("Listening on port " + PORT)
   console.log("__dirname root: " + __dirname)
 })
+
+// respond to websocket requests
+app.ws('/', function(ws, req) {
+  ws.on('message', function(msg) {
+    console.log("message recieved: " + msg)
+    ws.send("message recieved: " + msg)
+  })
+})
