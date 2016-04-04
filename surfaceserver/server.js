@@ -42,7 +42,7 @@ app.ws('/', function(ws, req) {
   // listen for messages from the page
   ws.on('message', function(msg) {
     console.log("received from page: " + msg)
-    rov_socket.write(msg + "\r\n")
+    rov_socket.write(msg + "\n")
   })
 
   // listen for data from the rov

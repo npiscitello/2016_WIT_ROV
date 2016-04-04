@@ -1,4 +1,6 @@
-var socket = new WebSocket("ws://127.0.0.1:3000")
+raw_url = window.location.href
+regex = /http(s?):///
+var socket = new WebSocket(raw_url.replace(regex, "ws://"))
 
 // wait for the window to load before trying to do anything...
 window.onload = function() {
