@@ -9,6 +9,6 @@ window.onload = function() {
 
   // respond to a socket message from server
   socket.onmessage = function(event) {
-   document.getElementById("json_output").value = event.data
+   document.getElementById("json_output").value = String(event.data)
   }
 }
