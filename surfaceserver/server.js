@@ -65,15 +65,11 @@ app.ws('/', function(ws, req) {
   // listen for messages from the page
   ws.on('message', function(msg) {
     console.log("received from page: " + msg)
-<<<<<<< HEAD
     if(open) {
       rov_socket.write(msg + "\r\n")
     } else {
       ws.send("ROV not connected!")
     }
-=======
-    rov_socket.write(msg + "\n")
->>>>>>> 5396b4943c8494ef84e82c09e75b89393f1ff008
   })
 
   // listen for data from the rov
