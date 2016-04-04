@@ -13,6 +13,7 @@ const LOCKOUT = false   // set flag to true to lock control to localhost only.
 // set path for static files
 app.use(express.static(__dirname + "/static"))
 
+// respond to http get requests
 app.get('/', function(req, res) {
   // test for localhost login
   var address = req.socket.remoteAddress
