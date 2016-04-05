@@ -1,3 +1,8 @@
+color = #555555
+width = 4px
+thick = solid width color
+thin = solid width/2 color
+
 .textStyle1
   font-family Helvetica
   font-weight bold
@@ -13,10 +18,83 @@
 
 .textBoxStyle
   font-family Courier
-  width: 500px
 
 .buttonStyle
   font-family Helvetica
   background-color Green
   color #FFFFFF
   border-radius 10%
+
+#head_container
+  border-top thick
+  border-left thick
+  border-right thick
+  position absolute
+  top 0px
+  left 0px
+  right 0px
+  height 50px - width
+  background-color #CC0000
+  color #EEEEEE
+  margin auto
+  font-family Helvetica
+  font-weight bold
+  font-size 18
+  text-align center
+
+#main_container
+  position absolute
+  top 50px
+  bottom 0px
+  left 0px
+  right 0px
+  display flex
+  flex-direction column
+  align-items stretch
+  align-content stretch
+
+.container
+  display flex
+  flex-direction row
+  align-items stretch
+  align-content stretch
+
+#top_container
+  order 1
+  flex 3
+
+#bot_container
+  order 2
+  flex 1
+
+#video
+  border-top thick
+  border-bottom thin
+  border-left thick 
+  border-right thin
+  order 1
+  flex 3
+
+#navigation
+  border-top thick 
+  border-bottom thin 
+  border-left thin 
+  border-right thick 
+  order 2
+  flex 1
+
+#diagnostics
+  border-top thin 
+  border-bottom thick 
+  border-left thick 
+  border-right thin 
+  order 1
+  flex 1
+
+#input
+  border-top thin
+  border-bottom thick
+  border-left thin
+  border-right thick 
+  order 2
+  flex 1

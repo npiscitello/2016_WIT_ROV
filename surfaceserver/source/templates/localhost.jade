@@ -3,10 +3,11 @@ extends default
 block docheader
   script(src = "/app/localhost.js")
 
-block content
+block diagnostics
   p1.textStyle2 Welcome! You're logged in from localhost!
-  br
-  br
+
+
+block input
   p1.inputStyle Input valid JSON: 
   input.textBoxStyle(type="text", placeholder='{"Input":"JSON"}', id="json_input")
   button.buttonStyle(id="json_button") Submit

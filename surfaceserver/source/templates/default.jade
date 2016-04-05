@@ -6,8 +6,23 @@ html
     title WIT ROV
   body
     header
-      block header
-      h1.textStyle1 Welcome to the 2016 WIT ROV
+      #head_container
+        pre HEADER CONTENT HERE
 
     content
       block content
+      #main_container
+        #top_container.container
+          #video.window
+            block video
+            p1 video
+          #navigation.window
+            block navigation
+            p1 navigation
+        #bot_container.container
+          #diagnostics.window
+            block diagnostics
+            p1 diagnostics
+          #input.window
+            block input
+            p1 misc. input
