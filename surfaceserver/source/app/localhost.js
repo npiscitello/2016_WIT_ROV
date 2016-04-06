@@ -20,6 +20,8 @@ window.onload = function() {
   // rotate the navigation widget
   document.getElementsByClassName("angle_button")[0].onclick = rotate
   document.getElementsByClassName("angle_button")[1].onclick = rotate
+  document.getElementById("act_angle").oninput = rotate
+  document.getElementById("req_angle").oninput = rotate
 
   function rotate() {
     var req_angle = -document.getElementById("req_angle").value
