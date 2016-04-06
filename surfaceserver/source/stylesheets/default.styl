@@ -1,4 +1,5 @@
 color = #555555
+background = #CCCCCC
 width = 4px
 thick = solid width color
 thin = solid width/2 color
@@ -58,6 +59,7 @@ thin = solid width/2 color
   flex-direction row
   align-items stretch
   align-content stretch
+  background-color background
 
 #top_container
   order 1
@@ -73,7 +75,7 @@ thin = solid width/2 color
   border-left thick 
   border-right thin
   order 1
-  flex 3
+  flex 2
 
 #navigation
   border-top thick 
@@ -98,3 +100,23 @@ thin = solid width/2 color
   border-right thick 
   order 2
   flex 1
+
+#angle_input
+  position absolute
+  top 300px
+
+#nav_widget
+  position relative
+
+.nav_vis
+  position absolute
+  width 100%
+
+#rov-img
+  z-index 1
+
+#cmp-img
+  z-index 2
+
+#req_img
+  z-index 3

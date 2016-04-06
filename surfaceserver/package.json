@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "build-css": "stylus source/stylesheets/default.styl -o static/css",
-    "clean": "rm -rf static/ && mkdir -p static/css",
-    "build": "npm run clean && cp -r source/app static/app && npm run build-css",
+    "clean": "rm -rf static && mkdir -p static/css",
+    "build": "npm run clean && cp -r source/app static/app && cp -r source/images static/images && npm run build-css",
     "start": "node server"
   },
   "author": "",

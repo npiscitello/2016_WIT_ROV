@@ -16,4 +16,15 @@ window.onload = function() {
   socket.onmessage = function(event) {
    document.getElementById("json_output").value = String(event.data)
   }
+
+  // rotate the navigation widget
+  document.getElementsByClassName("angle_button")[0].onclick = rotate
+  document.getElementsByClassName("angle_button")[1].onclick = rotate
+
+  function rotate() {
+    var req_angle = -document.getElementById("req_angle").value
+    var act_angle = -document.getElementById("act_angle").value
+    document.getElementById("cmp_img").style.transform = "rotate(" + act_angle + "deg)"
+    document.getElementById("req_img").style.transform = "rotate(" + (act_angle - req_angle) + "deg)"
+  }
 }

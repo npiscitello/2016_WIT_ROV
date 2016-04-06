@@ -18,7 +18,17 @@ html
             p1 video
           #navigation.window
             block navigation
-            p1 navigation
+            #nav_widget
+              img.nav_vis(id="rov_img", src="images/rov_base.png")
+              img.nav_vis(id="cmp_img", src="images/compass.png")
+              img.nav_vis(id="req_img", src="images/requested.png")
+            br
+            #angle_input
+              input(id="act_angle", type="number")
+              button.angle_button(id="act_button") actual
+              br
+              input(id="req_angle", type = "number")
+              button.angle_button(id="req_button") requested
         #bot_container.container
           #diagnostics.window
             block diagnostics
