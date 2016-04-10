@@ -19,9 +19,9 @@ html
           #navigation.window
             block navigation
             #nav_widget
-              img.nav_vis(id="rov_img", src="images/rov_base.png")
-              img.nav_vis(id="cmp_img", src="images/compass.png")
-              img.nav_vis(id="req_img", src="images/requested.png")
+              img#rov_img.nav_vis(src="images/rov_base.png")
+              img#cmp_img.nav_vis(src="images/compass.png")
+              img#req_img.nav_vis(src="images/requested.png")
             br
             #angle_input
               input(id="act_angle", type="number")
