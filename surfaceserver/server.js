@@ -56,6 +56,7 @@ rov_socket.on("close", function() {
 rov_socket.on("connect", function() {
   console.log("connected to the rov at " + rov_socket.remoteAddress + ":" + rov_socket.remotePort)
   open = true
+  heart_int = setInterval(sendHeartbeat, 1000)
 })
 
 // handle page communications
@@ -78,6 +79,11 @@ app.ws('/', function(ws, req) {
     ws.send("" + data)
   })
 })
+
+function sendHeartbeat() {
+  // generate and store heartbeat ID
+  // send {"action":"echo", "data":{"heartbeatID":<generated ID>}}
+}
 
 
 

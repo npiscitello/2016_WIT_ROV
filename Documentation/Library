@@ -1,3 +1,20 @@
+Command Format: JSON
+Command Structure: {"action":"<command>"[,"data":{<data>}]}
+
+Response Format: JSON
+Response Structure: {"success":<bool>, "err":<error>, "data":{<data>}}
+
+ROV Command Library:
+  get_time: returns ROV local time
+  get_mem_usage: returns ROV memory usage stats
+  get_cpu_usage: returns ROV processor load average
+  ping: simple ping; do nothing, return nothing 
+  echo: repeat back 'data' field from surface, if there was one
+
+
+!*!*!* Info from this line down is preliminary architecture conceptual work *!*!*!
+
+
 *** Surface -> ROV Comms ***
 command - param1: type, param2: type
 	setHeading - heading: number

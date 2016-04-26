@@ -135,6 +135,15 @@ function processCommand(data) {
       // Do nothing, successfully
       response.success = true;
       break;
+    case 'echo':
+      // echo recieved data, if there was any
+      response.success = true;
+      if (!cmd.hasOwnProperty('data')) {
+        return response;
+      }
+      response.data = cmd.data;
+      return response;
+      break;
     default:
       response.err = 'not_implemented';
       response.data = cmd;
