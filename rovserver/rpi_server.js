@@ -2,8 +2,9 @@
 var net = require('net');                         // Socket connections
 var os = require('os');                           // System stats
 // NPM Dependencies
-var mpu9150 = require('mpu9150');                 // Accelerometer/Gyro
+var mag = require('hmc6343');                     // Honeywell Magnetometer
 var temp = require('ds18b20');                    // Temperature sensor
+var pca = require('pca9685');                     // Adafruit PWM breakout
 var pidloop = require('node-pid-controller');     // PID loop manager
 
 // Setup variables
@@ -160,20 +161,6 @@ function processCommand(data) {
 /* From here down are just notes/examples */
 
 if (rpi) {
-  /* Accelerometer/Gyro */
-  // MPU is on the I2C bus
-  var mpu = new mpu9150();
-  mpu.initialize();
-
-  if (mpu.testConnection()) {
-    console.log(mpu.getMotion9());
-  } else {
-    console.log("Error: Failed to initialize the accelerometer/gyro.");
-  }
-
-  /* Accelerometer/Gyro End */
-
-
   /* Temperature Sensor */
   var getTemp = function(err, value) {
     console.log('Current temperature is: ', value);
