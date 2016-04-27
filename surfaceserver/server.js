@@ -56,7 +56,8 @@ rov_socket.on("close", function() {
 rov_socket.on("connect", function() {
   console.log("connected to the rov at " + rov_socket.remoteAddress + ":" + rov_socket.remotePort)
   open = true
-  heart_int = setInterval(sendHeartbeat, 1000)
+  // ask for info 10 times a second
+  heart_int = setInterval(sendHeartbeat, 100)
 })
 
 // handle page communications
@@ -65,6 +66,9 @@ app.ws('/', function(ws, req) {
 
   // listen for messages from the page
   ws.on('message', function(msg) {
+    // parse and store input data
+    // structure and send ROV commands
+      // (if heartbeat, check the ID against current ID)
     console.log("received from page: " + msg)
     if(open) {
       rov_socket.write(msg + "\r\n")
@@ -75,6 +79,9 @@ app.ws('/', function(ws, req) {
 
   // listen for data from the rov
   rov_socket.on("data", function(data) {
+    // parse and store output data
+    // structure and send page data dump
+      // (if heartbeat, check the ID against current ID)
     console.log("received from rov: " + data)
     ws.send("" + data)
   })
@@ -82,7 +89,8 @@ app.ws('/', function(ws, req) {
 
 function sendHeartbeat() {
   // generate and store heartbeat ID
-  // send {"action":"echo", "data":{"heartbeatID":<generated ID>}}
+  // send to ROV: {"action":"echo", "data":{"heartbeatID":<generated ID>}}
+  // send to page: {"heartbeatID":<generated ID>} 
 }
 
 
