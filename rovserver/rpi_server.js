@@ -2,9 +2,10 @@
 var net = require('net');                         // Socket connections
 var os = require('os');                           // System stats
 // NPM Dependencies
-var mag = require('hmc6343');                     // Honeywell Magnetometer
-var temp = require('ds18b20');                    // Temperature sensor
-var pca = require('pca9685');                     // Adafruit PWM breakout
+var hmc6343 = require('hmc6343');                 // Honeywell Magnetometer
+var ds18b20 = require('ds18b20');                 // Temperature sensor
+var pca9685 = require('pca9685').Pca9685Driver;   // Adafruit PWM breakout
+var i2cBus = require('i2c-bus');                  // the PCA needs this for setup
 var pidloop = require('node-pid-controller');     // PID loop manager
 
 // Setup variables
@@ -17,6 +18,8 @@ var port = 8100;
 // False - handle multiple connections simultaneously
 // True - handle but one connection at a time
 var exclusive = false;
+// variables for the sensors and shit
+var hmc, temp, pca;
 
 console.log('WIT ROV 2016 - Server Unit');
 
@@ -117,6 +120,7 @@ function processCommand(data) {
    * commands right in here.
    */
   switch (cmd.action) {
+  	// GENERAL COMMANDS
     case 'get_time':
       // Return the rov time for some reason
       response.success = true;
@@ -145,6 +149,101 @@ function processCommand(data) {
       response.data = cmd.data;
       return response;
       break;
+
+    // HMC6343 COMMANDS
+    case 'hmc_init':
+      // Initialize magnetometer
+      try {
+        hmc = new hmc6343('/dev/i2c-1', 0x19);
+      }
+      // Return error if there was one
+      catch (ex) {
+      	response.err = ex.message
+      	break;
+      }
+      response.success = true;
+      break;
+    case 'hmc_get_accel':
+      // Get accelerometer data from magnetometer
+      try {
+      	hmc.readAccel(function(accelData) {
+      	  response.data = accelData;
+      	  response.success = true;
+      	});
+      } catch (ex) {
+      	response.success = false;
+      	response.err = ex.message;
+      }
+      break;
+    case 'hmc_get_mag':
+      // Get magnetometer data from magnetometer
+      try {
+      	response.success = true;
+      	hmc.readMag(function(magData) {
+      	  response.data = magData;
+      	});
+      } catch (ex) {
+      	response.err = ex.message;
+      }
+      break;
+
+    // DS18B20 COMMANDS
+    // yeah we'll get to that
+
+    // PCA9685 COMMANDS
+    case 'pca_init':
+      // Initialize pca board
+      if (rpi) {
+      	var options = {
+          i2c: i2cBus.openSync(1),
+          address: 0x40,
+          frequency: 50,
+          debug: false
+        };
+        pca = new pca9685(options);
+        response.success = true;
+      } else {
+      	response.err = 'PCA is only initializable on the RPI'
+      }
+      
+      break;
+    case 'pca_set_pulseRange':
+      // Set Set channel chan to turn on on step cms.stepOn and off on step cmd.stepOff 
+      /* Usage:
+       * {"action":"pca_set_dutyCycle",
+       *  "chan":"[channel]",
+       *  "stepOn":"[on step]",
+       *  "stepOff":"[off step]"}
+       */
+      if(!cmd.hasOwnProperty('chan') || !cmd.hasOwnProperty('stepOn') || !cmd.hasOwnProperty('stepOff')) {
+      	response.err = 'usage: {action:pca_set_dutyCycle, chan:[channel], stepOn:[on step], stepOff:[off step]}';
+      	break;
+      }
+      try {
+      	response.success = true;
+      	pca.setPulseRange(cmd.chan, cmd.stepOn, cmd.stepOff);
+      } catch (ex) {
+      	response.err = ex.message;
+      }
+      break;
+    case 'pca_set_dutyCycle':
+      // Set duty cycle on channel cmd.chan to cmd.val
+      /* Usage:
+       * {"action":"pca_set_dutyCycle",
+       *  "chan":"[PCA channel]",
+       *  "val":"[duty cycle value]"}
+       */
+      if(!cmd.hasOwnProperty('chan') || !cmd.hasOwnProperty('val')) {
+      	response.err = 'usage: {action:pca_set_dutyCycle, chan:[channel], val:[value]}';
+      	break;
+      }
+      try {
+      	response.success = true;
+      	pca.setDutyCycle(cmd.chan, cmd.val)
+      } catch (ex) {
+      	response.err = ex.message;
+      }
+      break;
     default:
       response.err = 'not_implemented';
       response.data = cmd;
@@ -158,10 +257,10 @@ function processCommand(data) {
 
 
 
-/* From here down are just notes/examples */
+/* From here down are just notes/examples
 
 if (rpi) {
-  /* Temperature Sensor */
+  // Temperature Sensor
   var getTemp = function(err, value) {
     console.log('Current temperature is: ', value);
     if (err)
@@ -174,8 +273,8 @@ if (rpi) {
       temp.temperature(ids[i], getTemp);
     }
   });
-  /* Temperature Sensor End */
-}
+  // Temperature Sensor End
+} */
 
 /* PID Loop */
 var pid = new pidloop(0.25, 0.01, 0.01);
@@ -184,3 +283,13 @@ var correction = pid.update(100);
 
 // Correction contains a value to adjust by to achieve the pid target
 /* PID Loop End */
+
+/*___/\\\\\\\\\\\__________/\\\\\\\\\__/\\\________/\\\__/\\\___________________/\\\\\_______/\\\\\_____/\\\_____/\\\\\\\\\\\\_        
+ ___/\\\/////////\\\_____/\\\////////__\/\\\_______\/\\\_\/\\\_________________/\\\///\\\____\/\\\\\\___\/\\\___/\\\//////////__       
+  __\//\\\______\///____/\\\/___________\/\\\_______\/\\\_\/\\\_______________/\\\/__\///\\\__\/\\\/\\\__\/\\\__/\\\_____________      
+   ___\////\\\__________/\\\_____________\/\\\\\\\\\\\\\\\_\/\\\______________/\\\______\//\\\_\/\\\//\\\_\/\\\_\/\\\____/\\\\\\\_     
+    ______\////\\\______\/\\\_____________\/\\\/////////\\\_\/\\\_____________\/\\\_______\/\\\_\/\\\\//\\\\/\\\_\/\\\___\/////\\\_    
+     _________\////\\\___\//\\\____________\/\\\_______\/\\\_\/\\\_____________\//\\\______/\\\__\/\\\_\//\\\/\\\_\/\\\_______\/\\\_   
+      __/\\\______\//\\\___\///\\\__________\/\\\_______\/\\\_\/\\\______________\///\\\__/\\\____\/\\\__\//\\\\\\_\/\\\_______\/\\\_  
+       _\///\\\\\\\\\\\/______\////\\\\\\\\\_\/\\\_______\/\\\_\/\\\\\\\\\\\\\\\____\///\\\\\/_____\/\\\___\//\\\\\_\//\\\\\\\\\\\\/__ 
+        ___\///////////___________\/////////__\///________\///__\///////////////_______\/////_______\///_____\/////___\////////////__*/
