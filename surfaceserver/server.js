@@ -31,8 +31,8 @@ app.get('/', function(req, res) {
 
 
 //*** SOCKET STUFF ***//
-const EventEmitter = require("events");
 // set options and connect to the rov
+const reconnect_interval = 1000;
 rov_socket.readable = true;
 rov_socket.writable = true;
 const rov_socket_options = {"address":"127.0.0.1", "port":"8100"};
@@ -49,7 +49,20 @@ rov_socket.on("error", function() {
 rov_socket.on("close", function() {
   console.log("connection to the rov closed");
   rov_connected = false;
+  // start auto-reconnect
+  reconnect(reconnect_interval);
 });
+
+// try to connect to the socket after the interval delay
+function reconnect(interval) {
+  setInterval(function() {
+    if(!rov_connected) {
+      console.log("reconnecting to ROV...");
+      rov_socket.connect(rov_socket_options);
+      clearInterval(this);
+    }
+  }, interval);
+}
 
 // listen for a successful connection to the rov
 rov_socket.on("connect", function() {
