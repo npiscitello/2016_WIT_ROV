@@ -10,6 +10,19 @@ ROV Command Library:
   get_cpu_usage: returns ROV processor load average
   ping: simple ping; do nothing, return nothing 
   echo: repeat back 'data' field from surface, if there was one
+  // hmc stuff //
+  hmc_init: initializes a new hmc object on i2c bus 1 at address 0x19
+  hmc_get_accel: returns hmc's accelerometer data in an object: {"ax":[x-value], "ay":[y-value], "az":[z-value]}
+  hmc_get_mag: returns hmc's magnetometer data in an object: {"mx":[x-value], "my":[y-value], "mz":[z-value]}
+  // pca stuff //
+  pca_init: initializes a new pca object on i2c bus 1 at address 0x40
+  pca_set_pulseRange: usage: {action:pca_set_dutyCycle, chan:[channel], stepOn:[on step], stepOff:[off step]}
+  	chan = pca channel to output to
+  	stepOn = turn on on this step
+  	stepOff turn off on this step
+  pca_set_dutyCycle: usage: {action:pca_set_dutyCycle, chan:[channel], val:[value]}
+  	chan = pca channel to output to
+  	val = set duty dudy cycle on channel chan to this (range: 0-1, 25% would be 0.25)
 
 
 surfaceserver acts as a translator for the webpage - raw i/o goes between page and 
@@ -45,5 +58,5 @@ command - param1: type, param2: type
 sensor id - type
 	id - number (echo the heartbeat ID sent by the surface)
 	depth - number (pressure sensor adjusted to actual depth in mm)
-	temp - number (adjusted to °C)
+	temp - number (adjusted to Â°C)
 	head - number
