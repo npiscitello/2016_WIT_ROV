@@ -37,11 +37,18 @@ surfaceserver updates its local info and the page and ROV are updated on the nex
 data push. This is done asyncronously (updates are pushed to the page as they come up
 from the ROV and updates get pushed to the ROV as they arrive from the page).
 
-surface -> webpage Comms Format: JSON (output data to be displayed) (can be any combination of valid data values)
-Structure: {"heading":<heading>, "depth":<depth>, "temperature":<temp>, etc...}
+Webpage API:
+  Webpage expects to recieve any combination of the following in a strigified JSON: (<key>: <expected values>)
+    rov_connected: boolean
+    heading: number
+  Webpage sends the following at any time:
+    {"spevent": true, "data":{"buttonID": <what button was pressed>}}
+  Webpage sends the following upon recipt of packet from surface server in a strigified JSON: (<key>: <possible values>)
+    req_head: number
+    req_depth: number
+    manipulator: JSON
+      <tbd manipulator info here>
 
-webpage -> surface Comms Format: JSON (input data to be parsed and acted upon)
-Structure: {"spevent":false, "data": {"req_head":<heading>, "req_depth":<depth>, "manipulator":{manipulator data}}}
 
 
 !*!*!* Info from this line down is preliminary architecture conceptual work *!*!*!

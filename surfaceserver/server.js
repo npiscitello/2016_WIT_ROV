@@ -26,43 +26,56 @@ app.get('/', function(req, res) {
   } else {
     res.render(__dirname + "/source/templates/localhost.pug");
   }
-})
+});
 
 
 
 //*** SOCKET STUFF ***//
+const EventEmitter = require("events");
 // set options and connect to the rov
 rov_socket.readable = true;
 rov_socket.writable = true;
-rov_socket_options = {"address":"127.0.0.1", "port":"8100"};
+const rov_socket_options = {"address":"127.0.0.1", "port":"8100"};
 rov_socket.connect(rov_socket_options);
+var rov_connected = false;
 
 // handle rov communications
 // listen for an unsuccessful connection to the rov
 rov_socket.on("error", function() {
   console.log("connection to the rov failed");
-})
+});
 
 // listen for a closed connection to the rov
 rov_socket.on("close", function() {
   console.log("connection to the rov closed");
-})
+  rov_connected = false;
+});
 
 // listen for a successful connection to the rov
 rov_socket.on("connect", function() {
   console.log("connected to the rov at " + rov_socket.remoteAddress + ":" + rov_socket.remotePort);
-})
+  rov_connected = true;
+});
 
 
 // handle page communications
 app.ws('/', function(ws, req) {
   // figure out how to tell if it's localhost or remote
   console.log("connected to a page!");
+  ws.send(JSON.stringify({"rov_connected": rov_connected}));
+
+  // listen for ROV close/connect events and update page
+  rov_socket.on("close", function() {
+    ws.send(JSON.stringify({"rov_connected": false}));
+  });
+  rov_socket.on("connect", function() {
+    ws.send(JSON.stringify({"rov_connected": true}));
+  });
 
   // listen for a closed connection to the page
   ws.on("close", function() {
     console.log("connection to the page closed");
-  })
+  });
 
   // listen for data from the page
   ws.on("message", function(data) {
@@ -85,7 +98,7 @@ app.ws('/', function(ws, req) {
       // parse out data and send when ready
     }
     // structure and send ROV commands
-  })
+  });
 
   // listen for data from the rov (needs to be in page mgmt to be able to write to page)
   rov_socket.on("data", function(data) {
@@ -94,8 +107,8 @@ app.ws('/', function(ws, req) {
     // parse and store output data
     // structure and send page data dump
     // ws.send(stuff)
-  })
-})
+  });
+});
 
 
 
@@ -105,4 +118,4 @@ app.listen(HTTP_PORT, function() {
   console.log("Listening on port " + HTTP_PORT);
   console.log("__dirname root: " + __dirname);
   console.log("localhost lockout status: " + LOCKOUT);
-})
+});
