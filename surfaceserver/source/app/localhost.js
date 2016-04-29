@@ -1,13 +1,26 @@
 raw_url = window.location.href
 regex = /http(s?):/
 ws_url = raw_url.replace(regex, "ws:")
-var socket = new WebSocket(ws_url)
 var axis_scale = 90
 
 // wait for the window to load before trying to do anything...
 window.onload = function() {
   console.log("Connecting to a websocket at " + ws_url)
+  var socket = new WebSocket(ws_url)
   
+  // listen for an open connection
+  socket.onopen = function() {
+    console.log("websocket connected");
+    document.getElementById("page_connection").style.backgroundColor = "lime";
+  }
+
+  // listen for a closed connection
+  socket.onclose = function() {
+    console.log("websocket closed");
+    document.getElementById("page_connection").style.backgroundColor = "red";
+    // try to reconnect!
+  }
+
   // respond to a JSON Send button click
   document.getElementById("json_button").onclick = function() {
     socket.send(document.getElementById("json_input").value)

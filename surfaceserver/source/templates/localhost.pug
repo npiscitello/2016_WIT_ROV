@@ -17,3 +17,7 @@ block input
   br
   button.initButton(id="hmc_init") init HMC
   button.initButton(id="pca_init") init PCA
+
+block diagnostics
+  #page_connection.connectionStatus console/surface station connection status
+  #rov_connection.connectionStatus surface station/ROV connection status
