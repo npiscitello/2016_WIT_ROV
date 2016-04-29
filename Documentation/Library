@@ -28,6 +28,9 @@ ROV Command Library:
 surfaceserver acts as a translator for the webpage - raw i/o goes between page and 
 server, server sends structured data to ROV
 
+special events (e.g. button clicks) are sent on their own in the following format:
+  {"spevent":true, "data":{"buttonID": <what button was pressed>}}
+
 control paradigm: surface server stores all data. It pushes it's copy
 of relevant data to the ROV and webpage, which both respond with data updates. The
 surfaceserver updates its local info and the page and ROV are updated on the next
@@ -35,11 +38,11 @@ data push. This is done asyncronously (updates are pushed to the page as they co
 from the ROV and updates get pushed to the ROV as they arrive from the page).
 Connectivity is verified by periodic hearbeat packets to the page and the ROV.
 
-surface -> webpage Comms Format: JSON (output data to be displayed)
+surface -> webpage Comms Format: JSON (output data to be displayed) (can be any combination of valid data values)
 Structure: {"heading":<heading>, "depth":<depth>, "temperature":<temp>, etc...}
 
 webpage -> surface Comms Format: JSON (input data to be parsed and acted upon)
-Structure: {"req_head":<heading>, "req_depth":<depth>, "manipulator":{manipulator data}}
+Structure: {"spevent":false, "data": {"req_head":<heading>, "req_depth":<depth>, "manipulator":{manipulator data}}}
 
 
 !*!*!* Info from this line down is preliminary architecture conceptual work *!*!*!

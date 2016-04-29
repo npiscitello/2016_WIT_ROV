@@ -1,9 +1,8 @@
 // imports
 var express = require("express")
-var logger = require("morgan")
 var app = express()
-page_socket = require("express-ws")(app)
 rov_socket = new require("net").Socket()
+page_socket = require("express-ws")(app)
 
 
 
@@ -23,9 +22,9 @@ app.get('/', function(req, res) {
   var address = req.socket.remoteAddress
   localhost_addr = /127.0.0.1/
   if(!localhost_addr.test(address) && LOCKOUT) {
-    res.render(__dirname + "/source/templates/remote.jade", {"address": address})
+    res.render(__dirname + "/source/templates/remote.pug", {"address": address})
   } else {
-    res.render(__dirname + "/source/templates/localhost.jade")
+    res.render(__dirname + "/source/templates/localhost.pug")
   }
 })
 
@@ -41,6 +40,7 @@ rov_socket.writable = true
 rov_socket_options = {"address":"127.0.0.1", "port":"8100"}
 rov_socket.connect(rov_socket_options) 
 
+// handle rov communications
 // listen for an unsuccessful connection to the rov
 rov_socket.on("error", function() {
   console.log("connection to the rov failed")
@@ -49,49 +49,38 @@ rov_socket.on("error", function() {
 // listen for a closed connection to the rov
 rov_socket.on("close", function() {
   console.log("connection to the rov closed")
-  open = false
 })
 
 // listen for a successful connection to the rov
 rov_socket.on("connect", function() {
   console.log("connected to the rov at " + rov_socket.remoteAddress + ":" + rov_socket.remotePort)
-  open = true
   // ask for info 10 times a second
   heart_int = setInterval(sendHeartbeat, 100)
+})
+
+// listen for data from the rov
+rov_socket.on("data", function(data) {
+  // parse and store output data
+  // structure and send page data dump
+  console.log("received from rov: " + data)
 })
 
 // handle page communications
 app.ws('/', function(ws, req) {
   console.log("page connected")
 
+  // listen for a closed connection to the page
+  ws.on("close", function() {
+    console.log("connection to the page closed")
+  })
+
   // listen for messages from the page
-  ws.on('message', function(msg) {
+  ws.on("message", function(msg) {
     // parse and store input data
     // structure and send ROV commands
-      // (if heartbeat, check the ID against current ID)
     console.log("received from page: " + msg)
-    if(open) {
-      rov_socket.write(msg + "\r\n")
-    } else {
-      ws.send("ROV not connected!")
-    }
-  })
-
-  // listen for data from the rov
-  rov_socket.on("data", function(data) {
-    // parse and store output data
-    // structure and send page data dump
-      // (if heartbeat, check the ID against current ID)
-    console.log("received from rov: " + data)
-    ws.send("" + data)
   })
 })
-
-function sendHeartbeat() {
-  // generate and store heartbeat ID
-  // send to ROV: {"action":"echo", "data":{"heartbeatID":<generated ID>}}
-  // send to page: {"heartbeatID":<generated ID>} 
-}
 
 
 

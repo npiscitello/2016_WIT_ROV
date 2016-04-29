@@ -8,9 +8,19 @@ var axis_scale = 90
 window.onload = function() {
   console.log("Connecting to a websocket at " + ws_url)
   
-  // respond to a button click
+  // respond to a JSON Send button click
   document.getElementById("json_button").onclick = function() {
     socket.send(document.getElementById("json_input").value)
+  }
+
+  // respond to an hmc init button click
+  document.getElementById("hmc_init").onclick = function() {
+    socket.send(JSON.stringify({"spevent":true, "data":{"buttonID":"hmc_init"}}))
+  }
+
+  // respond to an pca init button click
+  document.getElementById("pca_init").onclick = function() {
+    socket.send(JSON.stringify({"spevent":true, "data":{"buttonID":"pca_init"}}))
   }
 
   // respond to a socket message from server
