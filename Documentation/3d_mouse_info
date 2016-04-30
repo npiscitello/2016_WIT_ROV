@@ -1,0 +1,12 @@
+Imagine the mouse is on a flat surface and you are looking down from the top,
+with the 3dconnexion logo at the bottom of the mouse, closest to you. 
+
+Axis 0: x axis  + <-left---right-> - 
+Axis 1: y axis  + <-backwards---forwards-> - (where backwards is towards the logo)
+Axis 2: z axis  + <-down---up-> - (where down is vertically towards the surface)
+Axis 3: x rot   + <-pitch forward---pitch backwards-> -
+Axis 4: y rot   + <-pitch left---pitch right-> -
+Axis 5: z rot   - <-counterclockwise---clockwise-> +
+
+Button 1: left side
+Button 2: right side

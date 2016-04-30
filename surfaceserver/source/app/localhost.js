@@ -11,12 +11,15 @@ window.onload = function() {
   var socket = new ReconnectingWebSocket(ws_url);
   socket.reconnectInterval = 1000;
   socket.reconnectDecay = 1;
+  var hid_data_int;
 
   // listen for an open connection
   socket.onopen = function() {
     console.log("websocket opened");
     // turn the indicator green
     document.getElementById("page_connection").style.backgroundColor = "lime";
+    // start sending HID data
+    hid_data_int = setInterval(sendGamepadValues, 100);
   }
 
   // listen for a closed connection
@@ -24,6 +27,7 @@ window.onload = function() {
     console.log("websocket closed - attempting reconnect");
     // turn the indicator red
     document.getElementById("page_connection").style.backgroundColor = "red";
+    clearInterval(hid_data_int);
   }
 
   // respond to a JSON Send button click
@@ -89,13 +93,19 @@ window.onload = function() {
     document.getElementById("req_img").style.transform = "rotate(" + (act_angle - req_angle) + "deg)";
   }
 
-  // animation function to spin nav dial
-  function animationLoop() {
+  // spin nav dials, send HID data
+  function sendGamepadValues() {
     var gp = navigator.getGamepads()[0];
     if(!gp) {
       return;
     }
     rotate(-axis_scale * gp.axes[0], axis_scale * gp.axes[2]);
+    data = {"event_type": "hid_data", "data": {
+      "axis0": gp.axes[0], "axis1": gp.axes[1], "axis2": gp.axes[2],
+      "axis3": gp.axes[3], "axis4": gp.axes[4], "axis5": gp.axes[5],
+      "btn0": gp.buttons[0].pressed, "btn1": gp.buttons[1].pressed}
+    }
+    socket.send(JSON.stringify(data));
   }
   
   // function to get gamepad info
@@ -107,13 +117,11 @@ window.onload = function() {
       if(gp) {
         console.log("Gamepad. index: %d, id: %s, buttons: %d, axes: %d",
           gp.index, gp.id, gp.buttons.length, gp.axes.length);
-        clearInterval(interval);
-        setInterval(animationLoop, 100);
-        animationLoop();
+        clearInterval(gamepad_poller);
       }
     }
   }
 
   // set up gamepad polling b/c Chrome doesn't do events
-  interval = setInterval(pollGamepads, 100);
+  gamepad_poller = setInterval(pollGamepads, 100);
 }

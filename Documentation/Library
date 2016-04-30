@@ -23,13 +23,12 @@ ROV Command Library:
   pca_set_dutyCycle: usage: {action:pca_set_dutyCycle, chan:[channel], val:[value]}
   	chan = pca channel to output to
   	val = set duty dudy cycle on channel chan to this (range: 0-1, 25% would be 0.25)
+  // HID data dump stuff //
+  hid_data: accepts all the data stuff from the HID device on the surface
 
 
 surfaceserver acts as a translator for the webpage - raw i/o goes between page and 
 server, server sends structured data to ROV
-
-special events (e.g. button clicks) are sent on their own in the following format:
-  {"spevent":true, "data":{"buttonID": <what button was pressed>}}
 
 control paradigm: surface server stores all data. It pushes it's copy
 of relevant data to the ROV and webpage, which both respond with data updates. The
@@ -42,12 +41,14 @@ Webpage API:
     rov_connected: boolean
     heading: number
   Webpage sends the following at any time:
-    {"spevent": true, "data":{"buttonID": <what button was pressed>}}
-  Webpage sends the following upon recipt of packet from surface server in a strigified JSON: (<key>: <possible values>)
-    req_head: number
-    req_depth: number
-    manipulator: JSON
-      <tbd manipulator info here>
+    {"event_type": "console_btn", "data":{"buttonID": <what button was pressed>}}
+    {"event_type": "hid_data", "data":{"axis0": <number>, "axis1": <number>, ... "btn0", <bool>, "btn1": <bool>}}
+  Webpage sends the following upon recipt of packet from surface server in a strigified JSON:
+    {"event_type": "data_update", "data": {
+      req_head: number,
+      req_depth: number,
+      manipulator: JSON }
+    }
 
 
 
