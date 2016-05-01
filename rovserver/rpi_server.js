@@ -4,7 +4,7 @@ var os = require('os');                           // System stats
 // NPM Dependencies
 var hmc6343 = require('hmc6343');                 // Honeywell Magnetometer
 var ds18b20 = require('ds18b20');                 // Temperature sensor
-var pca9685 = require('pca9685').Pca9685Driver;   // Adafruit PWM breakout
+var pca9685 = require('adafruit-pca9685').        // Adafruit PWM breakout
 var i2cBus = require('i2c-bus');                  // the PCA needs this for setup
 var pidloop = require('node-pid-controller');     // PID loop manager
 
@@ -20,6 +20,8 @@ var port = 8100;
 var exclusive = false;
 // variables for the sensors and shit
 var hmc, temp, pca;
+var joyX = 0, joyY = 0;
+var lThrust, rThrust, upThrust = 0;
 
 console.log('WIT ROV 2016 - Server Unit');
 
@@ -120,7 +122,7 @@ function processCommand(data) {
    * commands right in here.
    */
   switch (cmd.action) {
-  	// GENERAL COMMANDS
+    // GENERAL COMMANDS
     case 'get_time':
       // Return the rov time for some reason
       response.success = true;
@@ -158,32 +160,32 @@ function processCommand(data) {
       }
       // Return error if there was one
       catch (ex) {
-      	response.err = ex.message
-      	break;
+        response.err = ex.message
+        break;
       }
       response.success = true;
       break;
     case 'hmc_get_accel':
       // Get accelerometer data from magnetometer
       try {
-      	hmc.readAccel(function(accelData) {
-      	  response.data = accelData;
-      	  response.success = true;
-      	});
+        hmc.readAccel(function(accelData) {
+          response.data = accelData;
+          response.success = true;
+        });
       } catch (ex) {
-      	response.success = false;
-      	response.err = ex.message;
+        response.success = false;
+        response.err = ex.message;
       }
       break;
     case 'hmc_get_mag':
       // Get magnetometer data from magnetometer
       try {
-      	response.success = true;
-      	hmc.readMag(function(magData) {
-      	  response.data = magData;
-      	});
+        response.success = true;
+        hmc.readMag(function(magData) {
+          response.data = magData;
+        });
       } catch (ex) {
-      	response.err = ex.message;
+        response.err = ex.message;
       }
       break;
 
@@ -194,20 +196,17 @@ function processCommand(data) {
     case 'pca_init':
       // Initialize pca board
       if (rpi) {
-      	var options = {
-          i2c: i2cBus.openSync(1),
-          address: 0x40,
-          frequency: 50,
-          debug: false
-        };
+        var options = {
+          freq: 50,
+         };
         pca = new pca9685(options);
         response.success = true;
       } else {
-      	response.err = 'PCA is only initializable on the RPI'
+        response.err = 'PCA is only initializable on the RPI'
       }
       
       break;
-    case 'pca_set_pulseRange':
+    case 'pca_set_pulse':
       // Set Set channel chan to turn on on step cms.stepOn and off on step cmd.stepOff 
       /* Usage:
        * {"action":"pca_set_dutyCycle",
@@ -215,34 +214,46 @@ function processCommand(data) {
        *  "stepOn":"[on step]",
        *  "stepOff":"[off step]"}
        */
-      if(!cmd.hasOwnProperty('chan') || !cmd.hasOwnProperty('stepOn') || !cmd.hasOwnProperty('stepOff')) {
-      	response.err = 'usage: {action:pca_set_dutyCycle, chan:[channel], stepOn:[on step], stepOff:[off step]}';
-      	break;
+      if(!cmd.hasOwnProperty('chan') || !cmd.hasOwnProperty('pulse')) {
+        response.err = 'usage: {action:pca_set_dutyCycle, chan:[channel], pulse:[pulse length in ms]}';
+        break;
       }
       try {
-      	response.success = true;
-      	pca.setPulseRange(cmd.chan, cmd.stepOn, cmd.stepOff);
+        response.success = true;
+        pca.setPulse(cmd.chan, cmd.pulse);
       } catch (ex) {
-      	response.err = ex.message;
+        response.err = ex.message;
       }
       break;
-    case 'pca_set_dutyCycle':
-      // Set duty cycle on channel cmd.chan to cmd.val
-      /* Usage:
-       * {"action":"pca_set_dutyCycle",
-       *  "chan":"[PCA channel]",
-       *  "val":"[duty cycle value]"}
-       */
-      if(!cmd.hasOwnProperty('chan') || !cmd.hasOwnProperty('val')) {
-      	response.err = 'usage: {action:pca_set_dutyCycle, chan:[channel], val:[value]}';
-      	break;
+    case 'joystick_setData':
+      if (cmd.joyData.type === 'button') {
+        switch (cmd.joyData.value) {
+          case 0:
+            console.log('button ' + cmd.joyData.number + ' released');
+            break;
+          case 1:
+            console.log('button ' + cmd.joyData.number + ' released');
+            break;
       }
-      try {
-      	response.success = true;
-      	pca.setDutyCycle(cmd.chan, cmd.val)
-      } catch (ex) {
-      	response.err = ex.message;
-      }
+      if (cmd.joyData.type === 'axis') {
+        var scale = -(cmd.joyData.value/32767);
+        switch (cmd.joyData.number) {
+          case 0:
+            joyX = scale;
+            break;
+          case 1:
+            joyY = scale;
+            break;
+          case 3:
+            upThrust = (scale * 540 + 1617);
+            break;
+        }
+        lThrust = ((-joyX/2) + (joyY/2)) * 500 + 1617;
+        rThrust = ((joyX/2) + (joyY/2)) * 500 + 1617;
+        pca.setPulse(1, lThrust);
+        pca.setPulse(0, rThrust);
+        pca.setPulse(2, upThrust);
+        pca.setPulse(3, upThrust);
       break;
     default:
       response.err = 'not_implemented';
@@ -255,7 +266,32 @@ function processCommand(data) {
   return response;
 }
 
+/*
+joy1.on('button', function(peen) {
+  switch (peen.value) {
+    case 0:
+      console.log('button ' + peen.number + ' released');
+      break;
+    case 1:
+      console.log('button ' + peen.number + ' pressed');
+      break;
+    default:
+      console.log('wat');
+  }
+});
 
+// {time, value, number, type, id}
+
+joy1.on('axis', function(peen) {
+  scale = ((-(peen.value/32767) * 500) + 1500);
+  console.log ('axis ' + peen.number + ': ' + scale);
+  if (peen.number === 1) {
+    pca.setPulseLength(0, scale);
+    pca.setDutyCycle(0, scale);
+  }
+});
+
+ */
 
 /* From here down are just notes/examples
 
