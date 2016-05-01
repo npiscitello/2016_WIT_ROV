@@ -14,10 +14,9 @@
   "dependencies": {
     "express": "^4.13.4",
     "express-ws": "^1.0.0",
-    "jade": "^1.11.0",
-    "morgan": "^1.7.0",
     "net": "^1.0.2",
     "nodemon": "^1.9.1",
+    "pug": "^2.0.0-alpha6",
     "stylus": "^0.54.2"
   }
 }

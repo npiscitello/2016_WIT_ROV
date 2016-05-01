@@ -2,3 +2,4 @@
 .settings/
 surfaceserver/node_modules
 surfaceserver/static
+*.swp

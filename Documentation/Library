@@ -10,6 +10,21 @@ ROV Command Library:
   get_cpu_usage: returns ROV processor load average
   ping: simple ping; do nothing, return nothing 
   echo: repeat back 'data' field from surface, if there was one
+  // hmc stuff //
+  hmc_init: initializes a new hmc object on i2c bus 1 at address 0x19
+  hmc_get_accel: returns hmc's accelerometer data in an object: {"ax":[x-value], "ay":[y-value], "az":[z-value]}
+  hmc_get_mag: returns hmc's magnetometer data in an object: {"mx":[x-value], "my":[y-value], "mz":[z-value]}
+  // pca stuff //
+  pca_init: initializes a new pca object on i2c bus 1 at address 0x40
+  pca_set_pulseRange: usage: {action:pca_set_dutyCycle, chan:[channel], stepOn:[on step], stepOff:[off step]}
+  	chan = pca channel to output to
+  	stepOn = turn on on this step
+  	stepOff turn off on this step
+  pca_set_dutyCycle: usage: {action:pca_set_dutyCycle, chan:[channel], val:[value]}
+  	chan = pca channel to output to
+  	val = set duty dudy cycle on channel chan to this (range: 0-1, 25% would be 0.25)
+  // HID data dump stuff //
+  hid_data: accepts all the data stuff from the HID device on the surface
 
 
 surfaceserver acts as a translator for the webpage - raw i/o goes between page and 
@@ -20,13 +35,21 @@ of relevant data to the ROV and webpage, which both respond with data updates. T
 surfaceserver updates its local info and the page and ROV are updated on the next
 data push. This is done asyncronously (updates are pushed to the page as they come up
 from the ROV and updates get pushed to the ROV as they arrive from the page).
-Connectivity is verified by periodic hearbeat packets to the page and the ROV.
 
-surface -> webpage Comms Format: JSON (output data to be displayed)
-Structure: {"heading":<heading>, "depth":<depth>, "temperature":<temp>, etc...}
+Webpage API:
+  Webpage expects to recieve any combination of the following in a strigified JSON: (<key>: <expected values>)
+    rov_connected: boolean
+    heading: number
+  Webpage sends the following at any time:
+    {"event_type": "console_btn", "data":{"buttonID": <what button was pressed>}}
+    {"event_type": "hid_data", "data":{"axis0": <number>, "axis1": <number>, ... "btn0", <bool>, "btn1": <bool>}}
+  Webpage sends the following upon recipt of packet from surface server in a strigified JSON:
+    {"event_type": "data_update", "data": {
+      req_head: number,
+      req_depth: number,
+      manipulator: JSON }
+    }
 
-webpage -> surface Comms Format: JSON (input data to be parsed and acted upon)
-Structure: {"req_head":<heading>, "req_depth":<depth>, "manipulator":{manipulator data}}
 
 
 !*!*!* Info from this line down is preliminary architecture conceptual work *!*!*!
@@ -45,5 +68,5 @@ command - param1: type, param2: type
 sensor id - type
 	id - number (echo the heartbeat ID sent by the surface)
 	depth - number (pressure sensor adjusted to actual depth in mm)
-	temp - number (adjusted to °C)
+	temp - number (adjusted to Â°C)
 	head - number
