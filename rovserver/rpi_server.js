@@ -4,8 +4,7 @@ var os = require('os');                           // System stats
 // NPM Dependencies
 var hmc6343 = require('hmc6343');                 // Honeywell Magnetometer
 var ds18b20 = require('ds18b20');                 // Temperature sensor
-var pca9685 = require('adafruit-pca9685').        // Adafruit PWM breakout
-var i2cBus = require('i2c-bus');                  // the PCA needs this for setup
+var pca9685 = require('adafruit-pca9685')        // Adafruit PWM breakout
 var pidloop = require('node-pid-controller');     // PID loop manager
 
 // Setup variables
@@ -234,6 +233,7 @@ function processCommand(data) {
           case 1:
             console.log('button ' + cmd.joyData.number + ' released');
             break;
+        }
       }
       if (cmd.joyData.type === 'axis') {
         var scale = -(cmd.joyData.value/32767);
@@ -248,12 +248,13 @@ function processCommand(data) {
             upThrust = (scale * 540 + 1617);
             break;
         }
-        lThrust = ((-joyX/2) + (joyY/2)) * 500 + 1617;
-        rThrust = ((joyX/2) + (joyY/2)) * 500 + 1617;
-        pca.setPulse(1, lThrust);
-        pca.setPulse(0, rThrust);
-        pca.setPulse(2, upThrust);
-        pca.setPulse(3, upThrust);
+      }
+      lThrust = ((-joyX/2) + (joyY/2)) * 500 + 1617;
+      rThrust = ((joyX/2) + (joyY/2)) * 500 + 1617;
+      pca.setPulse(1, lThrust);
+      pca.setPulse(0, rThrust);
+      pca.setPulse(2, upThrust);
+      pca.setPulse(3, upThrust);
       break;
     default:
       response.err = 'not_implemented';
